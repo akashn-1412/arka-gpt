@@ -6,7 +6,8 @@ Flask-Migrate==3.1.0
 requests==2.31.0
 pandas==1.5.3
 cohere==2.0.0
-reportlab==3.6.11
+# Removed reportlab due to potential build issues
+# If you need to generate PDFs, consider using an alternative like FPDF or pdfkit
 PyPDF2==1.26.0
 openpyxl==3.0.10
 aiohttp==3.9.5
