@@ -12,3 +12,4 @@ openpyxl==3.0.10
 aiohttp==3.9.5
 beautifulsoup4==4.12.2
 Jinja2==3.1.2
+gunicorn==21.2.0  # You can specify the version you want or leave it blank for the latest
