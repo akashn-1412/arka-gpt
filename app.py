@@ -19,7 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Initialize the Cohere client with the API key from environment variables
-api_key = os.getenv('COHERE_API_KEY')
+api_key = os.getenv('3v1gSXcJA8TXjPUHe0kPcCyzEMY7Qo5f52M82SuN')
 co = cohere.Client(api_key)
 
 def generate_unique_filename(base_name):
