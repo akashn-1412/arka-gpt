@@ -35,7 +35,7 @@
   },
   "functions": {
     "app.py": {
-      "runtime": "python3.9",
+      "runtime": "python3.9", // Ensure to use a valid runtime version
       "memory": 1024,
       "maxDuration": 10
     }
