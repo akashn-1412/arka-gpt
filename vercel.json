@@ -1,43 +1,22 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
       "src": "/pdfs/(.*)",
       "dest": "/pdfs/$1"
     },
     {
-      "src": "/templates/(.*)",
-      "dest": "/templates/$1"
-    },
-    {
-      "src": "/prompts/(.*)",
-      "dest": "/prompts/$1"
-    },
-    {
-      "src": "/template.pdf",
-      "dest": "/template.pdf"
-    },
-    {
-      "src": "/requirements.txt",
-      "dest": "/requirements.txt"
-    },
-    {
-      "src": "/README.md",
-      "dest": "/README.md"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/app.py"
+      "dest": "app.py"
     }
   ],
   "env": {
     "COHERE_API_KEY": "3v1gSXcJA8TXjPUHe0kPcCyzEMY7Qo5f52M82SuN"
-  },
-  "functions": {
-    "app.py": {
-      "runtime": "python3.9", // Ensure to use a valid runtime version
-      "memory": 1024,
-      "maxDuration": 10
-    }
   }
 }
