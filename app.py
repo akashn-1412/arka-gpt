@@ -2,24 +2,25 @@ from flask import Flask, request, jsonify, render_template, send_file, send_from
 import cohere  # Ensure you have the Cohere API library installed
 import os
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from PyPDF2 import PageObject, PdfReader, PdfWriter
 from io import BytesIO
 import uuid
 from datetime import datetime
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
 import openpyxl
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__)
 
-# Initialize the Cohere client
-api_key = '3v1gSXcJA8TXjPUHe0kPcCyzEMY7Qo5f52M82SuN'
+# Initialize the Cohere client with the API key from environment variables
+api_key = os.getenv('COHERE_API_KEY')
 co = cohere.Client(api_key)
-
 
 def generate_unique_filename(base_name):
     # Generate a 2-digit random number
@@ -31,6 +32,7 @@ def generate_unique_filename(base_name):
     # Combine base name, random number, and timestamp to form a unique filename
     unique_filename = f"{base_name}_{random_number}_{timestamp}.pdf"
     return unique_filename
+
 # Define a function to read prompt from file and format it with user data
 def load_and_format_prompt(prompt_name, data):
     file_path = os.path.join('prompts', f'{prompt_name}_prompt.txt')
@@ -76,6 +78,7 @@ def load_and_format_prompt(prompt_name, data):
         sheet.append(headers)
     else:
         headers = [cell.value for cell in sheet[1]]
+    
     # Prepare the row data
     row_data = [data.get(header, '') for header in headers if header in data]
     row_data += [current_date, current_time]
@@ -90,9 +93,9 @@ def load_and_format_prompt(prompt_name, data):
 @app.route('/')
 def index():
     return render_template('index.html')
+
 # Define a function to generate PDF
-  
-def add_content_to_pdf(template_path, content, output_path,title):
+def add_content_to_pdf(template_path, content, output_path, title):
     temp_pdf_path = "temp_content.pdf"
     
     doc = SimpleDocTemplate(temp_pdf_path, pagesize=letter)
@@ -146,17 +149,12 @@ def add_content_to_pdf(template_path, content, output_path,title):
         elif para.startswith("## "):
             content_list.append(Paragraph(para.replace("## ", ""), heading_style))
         else:
-            # Convert `- **text**` to `- <b>text</b>`
-            para = para.replace('- <b>', '- <b>').replace('</b>', '</b>')
             content_list.append(Paragraph(para, body_style))
         
         content_list.append(Spacer(1, 12))
     
     doc.build(content_list)
     
-    # Here would be the code to merge the content with the template PDF, 
-    # which is not repeated to focus on the bold text formatting.
-
     template_reader = PdfReader(template_path)
     content_reader = PdfReader(temp_pdf_path)
     writer = PdfWriter()
@@ -187,15 +185,14 @@ def business_growth():
                                model='command-r-plus', 
                                temperature=0.5)
         strategy = response.generations[0].text
-        # output_folder = 'pdfs'
-        # os.makedirs(output_folder, exist_ok=True)
-        # output_path = os.path.join(output_folder, 'generated_business_growth_strategy.pdf')
-        pdf_filename = 'business_growth_strategy.pdf  '
+
+        pdf_filename = 'business_growth_strategy.pdf'
         unique_filename = generate_unique_filename(pdf_filename)
+        
         # Save the PDF to a file
         pdf_path = os.path.join('pdfs', unique_filename)
-        title="Business Growth Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
+        title = "Business Growth Strategy"
+        add_content_to_pdf('template.pdf', strategy, pdf_path, title)
 
         return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
     return render_template('business_growth.html')
@@ -211,12 +208,12 @@ def lead_generation():
         strategy = response.generations[0].text
         
         pdf_filename = 'lead_generation.pdf'
-
         unique_filename = generate_unique_filename(pdf_filename)
+        
         # Save the PDF to a file
         pdf_path = os.path.join('pdfs', unique_filename)
-        title="Lead Generation Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
+        title = "Lead Generation Strategy"
+        add_content_to_pdf('template.pdf', strategy, pdf_path, title)
 
         return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
     return render_template('lead_generation.html')
@@ -230,17 +227,16 @@ def funding_pitch():
                                model='command-r-plus', 
                                temperature=0.5)
         strategy = response.generations[0].text
-       
+        
         pdf_filename = 'funding_pitch.pdf'
-
-        # Save the PDF to a file
         unique_filename = generate_unique_filename(pdf_filename)
+        
         # Save the PDF to a file
         pdf_path = os.path.join('pdfs', unique_filename)
-        title="Funding Pitch Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
+        title = "Funding Pitch Strategy"
+        add_content_to_pdf('template.pdf', strategy, pdf_path, title)
 
-        return jsonify({'strategy': strategy, 'pdf_filename':unique_filename})
+        return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
     return render_template('funding_pitch.html')
 
 @app.route('/social-media-strategy', methods=['GET', 'POST'])
@@ -252,66 +248,17 @@ def social_media_strategy():
                                 model='command-r-plus', 
                                 temperature=0.5)
         strategy = response.generations[0].text
-       
+        
         pdf_filename = 'social_media_strategy.pdf'
         unique_filename = generate_unique_filename(pdf_filename)
+        
         # Save the PDF to a file
         pdf_path = os.path.join('pdfs', unique_filename)
-        title="Social Media Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
+        title = "Social Media Strategy"
+        add_content_to_pdf('template.pdf', strategy, pdf_path, title)
 
         return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
     return render_template('social_media_strategy.html')
 
-@app.route('/business-queries', methods=['GET', 'POST'])
-def business_queries():
-    if request.method == 'POST':
-        data = request.json
-        prompt = load_and_format_prompt('business_queries', data)
-        response = co.generate(prompt=prompt,
-                                model='command-r-plus',
-                                  temperature=0.5)
-        strategy = response.generations[0].text
-        
-        pdf_filename = 'business_queries.pdf'
-        unique_filename = generate_unique_filename(pdf_filename)
-        # Save the PDF to a file
-        pdf_path = os.path.join('pdfs', unique_filename)
-        title="Business Query Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
-
-        return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
-    return render_template('business_queries.html')
-
-@app.route('/linkedin-strategy', methods=['GET', 'POST'])
-def linkedin_strategy():
-    if request.method == 'POST':
-        data = request.json
-        prompt = load_and_format_prompt('linkedin_strategy', data)
-        response = co.generate(prompt=prompt,
-                                model='command-r-plus',
-                                  temperature=0.5)
-        strategy = response.generations[0].text
-        
-        pdf_filename = 'linkedin_strategy.pdf'
-
-        unique_filename = generate_unique_filename(pdf_filename)
-        # Save the PDF to a file
-        pdf_path = os.path.join('pdfs', unique_filename)
-        title="Linkedin Strategy"
-        add_content_to_pdf('template.pdf', strategy, pdf_path,title)
-
-        return jsonify({'strategy': strategy, 'pdf_filename': unique_filename})
-    return render_template('linkedin_strategy.html')
-@app.route('/pdfs/<filename>')
-def download_pdf(filename):
-    print(f"Serving file from directory 'pdfs' with filename: {filename}")
-    
-    # Check if the file exist
-    
-    return send_file(os.path.join('pdfs', filename), as_attachment=True)
-
 if __name__ == '__main__':
-    if not os.path.exists('pdfs'):
-        os.makedirs('pdfs')
     app.run(debug=True)
