@@ -8,15 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/pdfs/(.*)",
-      "dest": "/pdfs/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ],
-  "env": {
-    "COHERE_API_KEY": "3v1gSXcJA8TXjPUHe0kPcCyzEMY7Qo5f52M82SuN"
-  }
+  ]
 }
