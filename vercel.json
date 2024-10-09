@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
   "routes": [
     {
       "src": "/pdfs/(.*)",
@@ -21,6 +15,7 @@
   },
   "functions": {
     "app.py": {
+      "runtime": "python3.9",  // Specify the Python runtime version
       "memory": 1024,
       "maxDuration": 10
     }
